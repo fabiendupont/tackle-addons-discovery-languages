@@ -15,7 +15,7 @@ RUN dnf -y install libicu && \
     dnf clean all
 USER 1001
 
-COPY --from=builder /opt/app-root/src/bin/addon-adapter /usr/local/bin/addon-adapter
+COPY --from=addon-adapter-builder /opt/app-root/src/bin/addon-adapter /usr/local/bin/addon-adapter
 
 ENTRYPOINT ["/usr/local/bin/addon-adapter"]
 
