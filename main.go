@@ -14,7 +14,8 @@ import (
 )
 
 const (
-	Kind = "Tag"
+	Kind          = "File:application/json"
+	LanguagesFile = "/tmp/languages.json"
 )
 
 var (
@@ -66,6 +67,10 @@ func main() {
 	// Set language tag for the application
 	tag(d, language)
 
+	//
+	// Upload full languages list as an artifact
+	upload(d)
+
 	// Task update: The addon has succeeded
 	_ = addon.Succeeded()
 }
@@ -112,6 +117,20 @@ func getLanguage(d *Data) (language string) {
 		os.Exit(1)
 	}
 
+	// Write the JSON output to a file
+	// TODO: Allow upload of content, not only path
+	f, err := os.Create(LanguagesFile)
+	if err != nil {
+		_ = addon.Failed(fmt.Sprintf("failed to create languages file: %v", err))
+		os.Exit(1)
+	}
+	_, err = f.WriteString(stdout.String())
+	if err != nil {
+		_ = addon.Failed(fmt.Sprintf("failed to write languages to file: %v", err))
+		os.Exit(1)
+	}
+	f.Close()
+
 	// Read the JSON output into a map
 	type statistic struct {
 		Size       string `json:"size"`
@@ -129,6 +148,15 @@ func getLanguage(d *Data) (language string) {
 	}
 
 	return
+}
+
+//
+// Upload full languages list as an artifact
+func upload(d *Data) {
+	_ = addon.Activity("uploading the full result to the hub")
+	_ = addon.Total(1)
+	_ = addon.Artifact.Upload(d.Application, Kind, LanguagesFile)
+	_ = addon.Increment()
 }
 
 //
