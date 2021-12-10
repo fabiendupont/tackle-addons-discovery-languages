@@ -15,7 +15,7 @@ RUN dnf -y install libicu && \
     dnf clean all
 USER 1001
 
-COPY --from=addon-adapter-builder /tmp/addon-adapter /usr/local/bin/addon-adapter
+COPY --from=builder /opt/app-root/src/bin/addon-adapter /usr/local/bin/addon-adapter
 
-ENTRYPOINT ["/bin/bash"]
-#CMD ["github-linguist"]
+ENTRYPOINT ["/usr/local/bin/addon-adapter"]
+

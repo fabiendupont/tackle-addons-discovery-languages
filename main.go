@@ -3,12 +3,14 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/go-git/go-git/v5"
-	"os"
-	"os/exec"
-
+	"github.com/go-git/go-git/v5/plumbing"
 	hub "github.com/konveyor/tackle-hub/addon"
 	"github.com/konveyor/tackle-hub/model"
+	"os"
+	"os/exec"
+	"strconv"
 )
 
 const (
@@ -39,21 +41,18 @@ func main() {
 
 	//
 	// Get the addon data associated with the task.
-	d != &Data{}
+	d := &Data{}
 	_ = addon.DataWith(d)
 
 	//
 	// Validate the addon data and enforce defaults
-	if d.Application == nil {
+	if d.Application == 0 {
 		_ = addon.Failed("field 'application' is missing in addon data")
 		os.Exit(1)
 	}
-	if d.GitURL == nil {
+	if d.GitURL == "" {
 		_ = addon.Failed("field 'git_url' is missing in addon data")
 		os.Exit(1)
-	}
-	if d.GitPath == nil {
-		d.GitPath = ""
 	}
 
 	//
@@ -79,14 +78,14 @@ func cloneGitRepository(d *Data) {
 	_ = addon.Activity("cloning Git repository")
 
 	gitCloneOptions := &git.CloneOptions{
-		URL:               url,
-		ReferenceName:     branch,
+		URL:               d.GitURL,
+		ReferenceName:     plumbing.ReferenceName(d.GitBranch),
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 	}
 
-	r, err := git.PlainClone("/tmp/app", false, gitCloneOptions)
+	_, err := git.PlainClone("/tmp/app", false, gitCloneOptions)
 	if err != nil {
-		_ = addon.Failed("failed to clone the Git repository: %v", err)
+		_ = addon.Failed(fmt.Sprintf("failed to clone the Git repository: %v", err))
 		os.Exit(1)
 	}
 
@@ -109,23 +108,25 @@ func getLanguage(d *Data) (language string) {
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
-		_ = addon.Failed("failed to identify languages in the repository: %s", stderr.String())
+		_ = addon.Failed(fmt.Sprintf("failed to identify languages in the repository: %s", stderr.String()))
 		os.Exit(1)
 	}
 
 	// Read the JSON output into a map
-	var results map[string]interface{}
-	json.Unmarshal([]byte(stdout.String()), &results)
-
-	// Sort languages by percentage from highest to lowest
-	langs := make([]string, 0, len(results))
-	sort.Slice(langs, func(i, j int) bool {
-		iPct = strconv.ParseFloat(results[langs[i]]["percentage"], 32)
-		jPct = strconv.ParseFloat(results[langs[j]]["percentage"], 32)
-		return iPct > jPct
-	})
-
-	language = langs[0]
+	type statistic struct {
+		Size       string `json:"size"`
+		Percentage string `json:"percentage"`
+	}
+	report := map[string]statistic{}
+	_ = json.Unmarshal([]byte(stdout.String()), &report)
+	lastPct := float64(0)
+	for lang, stat := range report {
+		pct, _ := strconv.ParseFloat(stat.Percentage, 64)
+		if pct > lastPct {
+			language = lang
+		}
+		lastPct = pct
+	}
 
 	return
 }
@@ -140,32 +141,32 @@ func tag(d *Data, language string) {
 	// Find or create tag type named 'Language'
 	tagType := &model.TagType{}
 	tagTypes, _ := addon.TagType.List()
-	for tt := range tagTypes {
+	for _, tt := range tagTypes {
 		if tt.Name == "Language" {
 			tagType = &tt
 		}
 	}
 	if tagType == nil {
-		tagType, _ := addon.TagType.Create("Language")
+		tagType.Name = "Language"
+		_ = addon.TagType.Create(tagType)
 	}
 
 	//
 	// Find or create tag named after the application language
 	tag := &model.Tag{}
 	tags, _ := addon.Tag.List()
-	for t := range tags {
+	for _, t := range tags {
 		if t.Name == language {
 			tag = &t
 		}
 	}
 	if tag == nil {
-		newTag, _ := addon.Tag.Create(language)
-		tag = &newTag
+		_ = addon.Tag.Create(tag)
 	}
 
 	//
 	// Append tag the application tags list.
-	application.Tags = append(application.Tags, tag)
+	application.Tags = append(application.Tags, strconv.Itoa(int(tag.ID)))
 
 	//
 	// Update application.
