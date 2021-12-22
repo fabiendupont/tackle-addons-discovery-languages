@@ -210,13 +210,15 @@ func getLanguage(d *Data) (language string, err error) {
 	}
 	report := map[string]statistic{}
 	_ = json.Unmarshal([]byte(stdout.String()), &report)
-	lastPct := float64(0)
+	highestPct := float64(0)
 	for lang, stat := range report {
 		pct, _ := strconv.ParseFloat(stat.Percentage, 64)
-		if pct > lastPct {
+		fmt.Printf("Language '%s' has percentage '%.2f'\n", lang, pct)
+		if pct > highestPct {
+			fmt.Printf("%.2f > %.2f - Highest language is %s\n", pct, highestPct, lang)
 			language = lang
+			highestPct = pct
 		}
-		lastPct = pct
 	}
 	fmt.Printf("Most represented language is: %s\n", language)
 
