@@ -267,7 +267,6 @@ func tag(d *Data, language string) (err error) {
 	fmt.Printf("Adding the language tag to the application\n")
 	_ = addon.Activity("adding language tag to the application")
 	application, _ := addon.Application.Get(d.Application)
-	fmt.Printf("Application '%s' [%d] has the following tags: %p", application.Name, application.ID, application.Tags)
 
 	//
 	// Find or create tag type named 'Language'
@@ -289,18 +288,19 @@ func tag(d *Data, language string) (err error) {
 
 	//
 	// Find or create tag named after the application language
-	tag := &api.Tag{}
+	var tag *api.Tag
 	tags, _ := addon.Tag.List()
 	for _, t := range tags {
 		if t.TagType.ID == tagType.ID && t.Name == language {
-			fmt.Printf("Found tag 'Lnaguage/%s with id %d\n", language, t.ID)
+			fmt.Printf("Found tag 'Language/%s with id %d\n", language, t.ID)
 			tag = &t
 			break
 		}
 	}
 	if tag == nil {
 		fmt.Printf("Tag 'Language/%s' does not exist. Creating it.\n", language)
-		tag.Name = language
+		tag = &api.Tag{Name: language}
+		tag.TagType.ID = tagType.ID
 		_ = addon.Tag.Create(tag)
 	}
 	fmt.Printf("Tag 'Language/%s' has id %d\n", language, tag.ID)
@@ -309,7 +309,6 @@ func tag(d *Data, language string) (err error) {
 	// Append tag the application tags list.
 	fmt.Printf("Add tag 'Language/%s' to application '%s'\n", language, application.Name)
 	application.Tags = append(application.Tags, strconv.Itoa(int(tag.ID)))
-	fmt.Printf("Application '%s' now has the following tags: %p", application.Name, application.Tags)
 
 	//
 	// Update application.
