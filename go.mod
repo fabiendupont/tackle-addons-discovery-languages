@@ -7,7 +7,7 @@ require (
 	github.com/konveyor/tackle-hub v0.0.0-00010101000000-000000000000
 )
 
-replace github.com/konveyor/tackle-hub => github.com/mansam/tackle-hub v0.0.0-20211220224107-4ced96e22993
+replace github.com/konveyor/tackle-hub => github.com/mansam/tackle-hub v0.0.0-20211222155603-460a27fc56db
 
 replace k8s.io/apimachinery => k8s.io/apimachinery v0.0.0-20181127025237-2b1284ed4c93
 

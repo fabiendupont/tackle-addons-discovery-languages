@@ -289,18 +289,19 @@ func tag(d *Data, language string) (err error) {
 
 	//
 	// Find or create tag named after the application language
-	tag := &api.Tag{}
+	var tag *api.Tag
 	tags, _ := addon.Tag.List()
 	for _, t := range tags {
 		if t.TagType.ID == tagType.ID && t.Name == language {
-			fmt.Printf("Found tag 'Lnaguage/%s with id %d\n", language, t.ID)
+			fmt.Printf("Found tag 'Language/%s with id %d\n", language, t.ID)
 			tag = &t
 			break
 		}
 	}
 	if tag == nil {
 		fmt.Printf("Tag 'Language/%s' does not exist. Creating it.\n", language)
-		tag.Name = language
+		tag = &api.Tag{Name: language}
+		tag.TagType.ID = tagType.ID
 		_ = addon.Tag.Create(tag)
 	}
 	fmt.Printf("Tag 'Language/%s' has id %d\n", language, tag.ID)
