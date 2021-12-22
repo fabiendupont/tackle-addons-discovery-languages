@@ -277,14 +277,6 @@ github.com/mailru/easyjson v0.0.0-20160728113105-d5b7844b561a/go.mod h1:C1wdFJiN
 github.com/mailru/easyjson v0.0.0-20190614124828-94de47d64c63/go.mod h1:C1wdFJiN94OJF2b5HbByQZoLdCWB1Yqtg26g4irojpc=
 github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e/go.mod h1:C1wdFJiN94OJF2b5HbByQZoLdCWB1Yqtg26g4irojpc=
 github.com/mailru/easyjson v0.7.0/go.mod h1:KAzv3t3aY1NaHWoQz1+4F1ccyAH66Jk7yos7ldAVICs=
-github.com/mansam/tackle-hub v0.0.0-20211209180206-49c15bbac0b5 h1:jOzEDJ8rZ6qMW7Ej394+rJ4JRM6QwHdFVSyw/qL39Eo=
-github.com/mansam/tackle-hub v0.0.0-20211209180206-49c15bbac0b5/go.mod h1:f758F/28C8G9haua+d1s6PU9lNVqXqCpMABhKf4EAlc=
-github.com/mansam/tackle-hub v0.0.0-20211220224107-4ced96e22993 h1:7ffEeMphlEoSH2U0IqIDm6a5A2YCwANB4xkBpR7NPXE=
-github.com/mansam/tackle-hub v0.0.0-20211220224107-4ced96e22993/go.mod h1:f758F/28C8G9haua+d1s6PU9lNVqXqCpMABhKf4EAlc=
-github.com/mansam/tackle-hub v0.0.0-20211222143336-160d565fbe95 h1:OAZ/cw+CIUy3asGP1jm5mSoxt55C9JJTI4+qE0FJnFw=
-github.com/mansam/tackle-hub v0.0.0-20211222143336-160d565fbe95/go.mod h1:f758F/28C8G9haua+d1s6PU9lNVqXqCpMABhKf4EAlc=
-github.com/mansam/tackle-hub v0.0.0-20211222154802-31a8177ceabd h1:R4vR7tKPg0kKgRkVkE005FmnTs9yNKXpqrZlyY3E42U=
-github.com/mansam/tackle-hub v0.0.0-20211222154802-31a8177ceabd/go.mod h1:f758F/28C8G9haua+d1s6PU9lNVqXqCpMABhKf4EAlc=
 github.com/mansam/tackle-hub v0.0.0-20211222155603-460a27fc56db h1:aD58XlAWv3rt6AEwl1uqeo45k0QMxf3Jqq3pfMhq9OU=
 github.com/mansam/tackle-hub v0.0.0-20211222155603-460a27fc56db/go.mod h1:f758F/28C8G9haua+d1s6PU9lNVqXqCpMABhKf4EAlc=
 github.com/matryer/is v1.2.0 h1:92UTHpy8CDwaJ08GqLDzhhuixiBUUD1p3AU6PHddz4A=
