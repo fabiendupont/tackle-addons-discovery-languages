@@ -85,14 +85,14 @@ func main() {
 		return
 	}
 
-	// Set language tag for the application
-	err = tag(d, language)
+	// Upload full languages list as an artifact
+	err = createBucket(d)
 	if err != nil {
 		return
 	}
 
-	// Upload full languages list as an artifact
-	err = createBucket(d)
+	// Set language tag for the application
+	err = tag(d, language)
 	if err != nil {
 		return
 	}
@@ -267,6 +267,7 @@ func tag(d *Data, language string) (err error) {
 	fmt.Printf("Adding the language tag to the application\n")
 	_ = addon.Activity("adding language tag to the application")
 	application, _ := addon.Application.Get(d.Application)
+	fmt.Printf("Application id is %d\n", application.ID)
 
 	//
 	// Find or create tag type named 'Language'
