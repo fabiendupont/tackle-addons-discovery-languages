@@ -77,7 +77,10 @@ func main() {
 	}
 
 	// Clone Git repository
-	cloneGitRepository(d)
+	err = cloneGitRepository(d)
+	if err != nil {
+		return
+	}
 
 	// Get the main language
 	language, err := getLanguage(d)
