@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -66,14 +67,12 @@ func main() {
 
 	// Validate the addon data and enforce defaults
 	if d.Application == 0 {
-		fmt.Printf("Field 'application' is missing in addon data\n")
-		_ = addon.Failed("field 'application' is missing in addon data")
-		os.Exit(1)
+		err = errors.New("field 'application' is missing in addon data")
+		return
 	}
 	if d.GitURL == "" {
-		fmt.Printf("Field 'git_url' is missing in addon data\n")
-		_ = addon.Failed("field 'git_url' is missing in addon data")
-		os.Exit(1)
+		err = errors.New("field 'git_url' is missing in addon data")
+		return
 	}
 
 	// Clone Git repository
