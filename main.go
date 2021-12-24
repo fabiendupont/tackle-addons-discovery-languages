@@ -30,10 +30,12 @@ var (
 // Data Addon data passed in the secret.
 // TODO: Replace Git* fields with fetching the info from the hub
 type Data struct {
-	Application uint   `json:"application"`
-	GitURL      string `json:"git_url"`
-	GitBranch   string `json:"git_branch"`
-	GitPath     string `json:"git_path"`
+	Application uint `json:"application"`
+	Git         struct {
+		URL    string `json:"url"`
+		Branch string `json:"branch"`
+		Path   string `json:"path"`
+	} `json:"git"`
 }
 
 //
@@ -45,12 +47,6 @@ func main() {
 	// Get the addon data associated with the task.
 	d := &Data{}
 	_ = addon.DataWith(d)
-
-	fmt.Printf("Data passed to the addon:\n")
-	fmt.Printf("  - Application ID: %d\n", d.Application)
-	fmt.Printf("  - Git URL: %s\n", d.GitURL)
-	fmt.Printf("  - Git Branch: %s\n", d.GitBranch)
-	fmt.Printf("  - Git Path: %s\n", d.GitPath)
 
 	// Error handler
 	defer func() {
@@ -66,12 +62,8 @@ func main() {
 	_ = addon.Started()
 
 	// Validate the addon data and enforce defaults
-	if d.Application == 0 {
-		err = errors.New("field 'application' is missing in addon data")
-		return
-	}
-	if d.GitURL == "" {
-		err = errors.New("field 'git_url' is missing in addon data")
+	err = validateData(d)
+	if err != nil {
 		return
 	}
 
@@ -103,6 +95,26 @@ func main() {
 	_ = addon.Succeeded()
 }
 
+// Validate the addon data and enforce defaults
+func validateData(d *Data) (err error) {
+	if d.Application == 0 {
+		err = errors.New("field 'application' is missing in addon data")
+		return
+	}
+	if d.Git.URL == "" {
+		err = errors.New("Git URL is missing in addon data")
+		return
+	}
+
+	dJSON, err := json.MarshalIndent(d, "", "  ")
+	if err != nil {
+		return
+	}
+	fmt.Printf("Data used by the addon:\n%s\n", string(dJSON))
+
+	return
+}
+
 //
 // Clone Git repository
 // TODO: Add support for non anonymous Git operations
@@ -112,8 +124,8 @@ func cloneGitRepository(d *Data) (err error) {
 	_ = addon.Activity("cloning Git repository")
 
 	gitCloneOptions := &git.CloneOptions{
-		URL:               d.GitURL,
-		ReferenceName:     plumbing.ReferenceName(d.GitBranch),
+		URL:               d.Git.URL,
+		ReferenceName:     plumbing.ReferenceName(d.Git.Branch),
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 	}
 	fmt.Printf("Git clone options\n")
@@ -138,14 +150,14 @@ func getLanguage(d *Data) (language string, err error) {
 	fmt.Printf("Identifying languages in the repository\n")
 	_ = addon.Activity("identifying languages in the repository")
 
-	appPath := "/tmp/app/" + d.GitPath
+	appPath := "/tmp/app/" + d.Git.Path
 	fmt.Printf("Application path to analyze: %s\n", appPath)
 
 	// GitHub Linguist only supports running at the root of
 	// the Git repository. When we need to analyze only a
 	// subfolder, we have to initialize it as a Git repository
 	// and run github-linguist in this new repository.
-	if d.GitPath != "" {
+	if d.Git.Path != "" {
 		fmt.Printf("Initialize %s as a Git repository\n", appPath)
 		cmd = exec.Command("/usr/bin/git", "init")
 		cmd.Dir = appPath
